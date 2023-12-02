@@ -18,8 +18,8 @@ app.post('/otp', async (req, res) => {
 
 
 
+//r
 
-    
     try {
         const { mobileNumber } = req.body;
 
