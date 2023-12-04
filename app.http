@@ -1,0 +1,31 @@
+GET http://localhost:4444/
+###
+POST http://localhost:4444/otp
+Content-Type: application/json
+
+{
+    "mobileNumber":"6305873533"
+}
+###
+
+GET http://localhost:4444/products
+###
+GET http://localhost:4444/products/656b62211e87fee3f90a9357 
+###
+GET http://localhost:4444/filterproducts?category=Home care
+###
+POST http://localhost:4444/address
+Content-Type: application/json
+
+{
+
+        "FullName":"umadevi",
+        "mobileNumber":"6305873533",
+        "Flat":"flat no.2,kavuri hills",
+        "Area":"madhapur",
+        "Pincode":"522616",
+        "City":"Hyderabad",
+        "State":"TS"
+}
+###
+GET http://localhost:4444/alladdress
