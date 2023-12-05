@@ -24,6 +24,18 @@ const ImagesSchema = new mongoose.Schema({
   });
 
   const Product = mongoose.model("product", productSchema);
+
+  const cartSchema = new mongoose.Schema({
+    items: {
+      type: Object,
+      default: [Product],
+    },
+    
+  });
+  
+  // Create the Cart model
+  const Cart = mongoose.model('Cart', cartSchema);
+  
    const productDetails = new mongoose.Schema({
     image: [ImagesSchema],
     title: String,
@@ -35,4 +47,4 @@ const ImagesSchema = new mongoose.Schema({
 
    const ProductDetails = mongoose.model("ProductDetails",  productDetails);
 
-   module.exports = {ProductDetails, Product};
+   module.exports = {ProductDetails, Product,Cart};

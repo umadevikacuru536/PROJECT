@@ -1,8 +1,0 @@
-GET http://localhost:4444/
-###
-POST http://localhost:4444/otp
-Content-Type: application/json
-
-{
-    "mobileNumber":"9658745874"
-}
