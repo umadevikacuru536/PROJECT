@@ -7,12 +7,6 @@ const app = express()
 const userdata = require("./model/login")
 app.use(express.json())  // ACCEPTING JSON FORMAT DATA AND PARSING TO LOCAL USER
 app.use(cors({ origin: "*" }))
-const paypal = require('paypal-rest-sdk');
-paypal.configure({
-    'mode': 'sandbox', //sandbox or live
-    'client_id': '',
-    'client_secret': ''
-});
 mongoose.connect("mongodb+srv://umadevikavuru:umadevi1234@cluster0.drlbwri.mongodb.net/ProductDetails?retryWrites=true&w=majority")
     .then((res) => console.log("db connected"))
     .catch((err) => console.log(err.message))
@@ -201,11 +195,47 @@ app.get("/filterproducts", async (req, res) => {
         console.log(e.message, "filterproducts")
         return res.json({ message: "internal server error" })
     }
-})
-//    Server
+});
+
 // address api
 
-
+app.post("/address", async (req, res) => {
+    try {
+      const {
+        FullName,
+        mobileNumber,
+        Flat,
+        Area,
+        Pincode,
+        City,
+        State
+         } = req.body;
+  
+  
+      let newUser = new address({
+        FullName,
+        mobileNumber,
+        Flat,
+        Area,
+        Pincode,
+        City,
+        State
+        
+      });
+  
+      const isUserExist = await address.findOne({ });
+      if (isUserExist) {
+        return res.send("address already registered");
+      }
+  
+      newUser.save(); //saving to mongodb collections
+      res.send("address created succesfully");
+    }
+    catch (e) {
+      console.log(e.message,"address");
+      res.send("internal server error");
+    }
+  });
 
 
 
@@ -219,75 +249,6 @@ app.get("/alladdress", async (req, res) => {
     }
 });
 
-app.get('/', (req, res) => res.sendFile(__dirname + "/index.html"));
-
-
-app.post('/pay', (req, res) => {
-    const create_payment_json = {
-        "intent": "sale",
-        "payer": {
-            "payment_method": "paypal"
-        },
-        "redirect_urls": {
-            "return_url": "http://localhost:3000/success",
-            "cancel_url": "http://localhost:3000/cancel"
-        },
-        "transactions": [{
-            "item_list": {
-                "items": [{
-                    "name": "Red Sox Hat",
-                    "sku": "001",
-                    "price": "5.00",
-                    "currency": "USD",
-                    "quantity": 1
-                }]
-            },
-            "amount": {
-                "currency": "USD",
-                "total": "5.00"
-            },
-            "description": "Hat for the best team ever"
-        }]
-    };
-    app.get('/success', (req, res) => {
-        const payerId = req.query.PayerID;
-        const paymentId = req.query.paymentId;
-
-        const execute_payment_json = {
-            "payer_id": payerId,
-            "transactions": [{
-                "amount": {
-                    "currency": "USD",
-                    "total": "5.00"
-                }
-            }]
-        };
-
-        paypal.payment.execute(paymentId, execute_payment_json, function (error, payment) {
-            if (error) {
-                console.log(error.response);
-                throw error;
-            } else {
-                console.log(JSON.stringify(payment));
-                res.send('Success');
-            }
-        });
-    });
-    paypal.payment.create(create_payment_json, function (error, payment) {
-        if (error) {
-            throw error;
-        } else {
-            for (let i = 0; i < payment.links.length; i++) {
-                if (payment.links[i].rel === 'approval_url') {
-                    res.redirect(payment.links[i].href);
-                }
-            }
-        }
-    });
-
-});
-app.get('/cancel', (req, res) => res.send('Cancelled'));
-
 app.post('/addcart/:productId', async (req, res) => {
     try {
       const productId = req.params.productId;
@@ -300,7 +261,7 @@ app.post('/addcart/:productId', async (req, res) => {
       }
   
       // Fetch or create the cart
-      const cart = await Cart.findOne({productId:productId});
+      const cart = await Cart.findOne({ productId: productId });
   
       if (!cart) {
         const newCart = new Cart({
@@ -313,7 +274,7 @@ app.post('/addcart/:productId', async (req, res) => {
         });
   
         await newCart.save();
-        return res.json({ success: true, cart: newCart });
+        return res.json({ success: true, cart: newCart, totalPrice: newCart.calculateTotalPrice() });
       } else {
         // Assuming Cart class has a static method to create an instance from an existing cart
         const existingCart = new Cart(cart);
@@ -321,7 +282,8 @@ app.post('/addcart/:productId', async (req, res) => {
   
         // Save the updated cart
         await existingCart.save();
-        return res.json({ success: true, cart: existingCart });
+        return res.json({ success: true, cart: newCart, totalPrice: newCart.calculateTotalPrice() });
+
       }
     } catch (error) {
       console.error(error.message, "/addcart/:productId");
@@ -329,10 +291,26 @@ app.post('/addcart/:productId', async (req, res) => {
     }
   });
   
+app.get("/allcart", async (req, res) => {
+    try {
+      const allCarts = await Cart.find({});
+      let totalPrice = 0;
   
+      allCarts.forEach((cart) => {
+        for (const productId in cart.items) {
+          const product = cart.items[productId].product;
+          const quantity = cart.items[productId].quantity;
+          totalPrice += product.price * quantity;
+        }
+      });
   
+      res.json({ totalCartPrice: totalPrice, carts: allCarts });
+    } catch (error) {
+      console.error(error.message, "allcart");
+      res.status(500).json({ error: "Internal Server Error" });
+    }
+  });
   
-
 app.listen(4444, () => {
 
     console.log("server running")

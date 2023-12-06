@@ -30,11 +30,25 @@ const ImagesSchema = new mongoose.Schema({
       type: Object,
       default: [Product],
     },
-    
   });
   
+  // Move the calculateTotalPrice method inside the schema definition
+  cartSchema.methods.calculateTotalPrice = function () {
+    let totalPrice = 0;
+  
+    // Iterate over items in the cart
+    for (const productId in this.items) {
+      if (this.items.hasOwnProperty(productId)) {
+        const item = this.items[productId];
+        totalPrice += item.product.price * item.quantity;
+      }
+    }
+  
+    return totalPrice;
+  };
+  
   // Create the Cart model
-  const Cart = mongoose.model('Cart', cartSchema);
+  const Cart = mongoose.model("Cart", cartSchema);
   
    const productDetails = new mongoose.Schema({
     image: [ImagesSchema],

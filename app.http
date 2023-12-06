@@ -28,6 +28,8 @@ Content-Type: application/json
         "State":"TS"
 }
 ###
-GET http://localhost:4444/alladdres
+GET http://localhost:4444/alladdress
 ###
-POST  http://localhost:4444/addcart/656b6ab1ff21c8fe74b882bd
+POST  http://localhost:4444/addcart/656b62211e87fee3f90a9357 
+###
+GET http://localhost:4444/allcart
