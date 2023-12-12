@@ -310,6 +310,21 @@ app.get("/allcart", async (req, res) => {
       res.status(500).json({ error: "Internal Server Error" });
     }
   });
+  app.delete("/deletecart/:id", async (req, res) => {
+    try {
+      const id = req.params.id;
+      const deletedCart = await Cart.findOneAndDelete({ _id: id });
+  
+      if (!deletedCart) {
+        res.status(404).json("Cart not found");
+      } else {
+        res.json("Deleted successfully");
+      }
+    } catch (error) {
+      console.error(error.message, "/deletecart/:id");
+      res.status(500).json({ error: "Internal Server Error" });
+    }
+  });
   
 app.listen(4444, () => {
 

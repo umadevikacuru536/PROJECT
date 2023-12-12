@@ -12,7 +12,8 @@ GET http://localhost:4444/products
 ###
 GET http://localhost:4444/products/656b62211e87fee3f90a9357 
 ###
-GET http://localhost:4444/filterproducts?category=Home care && title=Dusters product
+GET http://localhost:4444/filterproducts?category=Home care
+
 ###
 POST http://localhost:4444/address
 Content-Type: application/json
@@ -33,3 +34,5 @@ GET http://localhost:4444/alladdress
 POST  http://localhost:4444/addcart/656b62211e87fee3f90a9357 
 ###
 GET http://localhost:4444/allcart
+###
+DELETE http://localhost:4444/deletecart/65714476e0b21be6fc2edf9f
